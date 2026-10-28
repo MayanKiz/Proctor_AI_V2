@@ -6,7 +6,7 @@ Project to create an automated proctoring system where the user can be monitored
 
 ## Run locally
 
-Use **64-bit Python 3.11** for the pinned computer-vision dependencies. Scikit-learn 1.2.2 is pinned to match the bundled older face-spoof model. The commands below start the local webcam checks.
+This combined version includes the V1 app from [proctoring_ai_102](https://github.com/MayanKiz/proctoring_ai_102) and runs **V1 first, then the V2 visual checks**. Use **64-bit Python 3.11**. The requirements use MediaPipe plus the TensorFlow/OpenCV dependencies and pin scikit-learn 1.2.2 for the bundled older face-spoof model.
 
 ### Windows (PowerShell)
 
@@ -21,7 +21,7 @@ python -m pip install -r requirements.txt
 python run_camera.py
 ```
 
-If the repository is already cloned, start at `cd Proctor_AI_V2` (or open PowerShell in that folder) and continue from creating the virtual environment. If `py -3.11` is not recognized, install 64-bit Python 3.11 first. If `Activate.ps1` is not found, the virtual environment was not created; run `py -3.11 -m venv .venv` first, then activate it.
+If the repo is already cloned, run `git pull origin main`, then start at `cd Proctor_AI_V2` (or open PowerShell in that folder) and continue from creating the virtual environment. If you already have a `.venv` from the earlier V2 setup, remove and recreate it before installing: the combined version replaces OpenCV with MediaPipe's compatible contrib package. In PowerShell, use `Remove-Item -Recurse -Force .venv` before `py -3.11 -m venv .venv`. If `py -3.11` is not recognized, install 64-bit Python 3.11 first. If `Activate.ps1` is not found, run `py -3.11 -m venv .venv` first, then activate it.
 
 ### macOS / Linux
 
@@ -35,9 +35,15 @@ python -m pip install -r requirements.txt
 python run_camera.py
 ```
 
-The five visual checks run one after another in OpenCV windows. Press `q` in a feature window to move to the next check. For mouth opening, press `r` while facing the camera to calibrate, then press `q` after calibration. The first person/phone check downloads the YOLOv3 weights (about 236 MB), so an internet connection and extra disk space are needed. The webcam and audio checks do not run simultaneously; audio is a separate script and requires a microphone plus a `paper.txt` question-paper file.
+First, V1 starts in the MAYANK style and monitors the webcam. Look straight at the screen during its short calibration. Press `q` or `Esc` in the V1 window to finish V1; **V2 then starts automatically**. V1 asks whether to enable Telegram in an interactive terminal; choose Skip to keep the session local. Use `python run_camera.py --no-telegram` to skip the Telegram prompt and force local-only mode.
 
-To run the FastAPI API instead, use `python -m uvicorn main:app --reload` and open `http://127.0.0.1:8000/docs`. Stop either mode with `Ctrl+C` in the terminal.
+V2 then runs eye tracking, head pose, mouth opening, person/phone detection, and face-spoof checks in order. Press `q` in a V2 window to move to the next check. During mouth setup, face the camera and press `r` to calibrate; after calibration press `q` to continue. The first person/phone check downloads YOLOv3 weights (about 236 MB), so allow it time and ensure there is enough disk space.
+
+If you add your exam question text to `paper.txt`, the launcher offers an optional V2 microphone check at the end. It records up to 30 seconds and sends the audio to Google Speech Recognition to transcribe it. Type exactly `YES` only if you agree to that transmission; pressing Enter skips it without recording. The transcript is saved locally as `test.txt`.
+
+To run the FastAPI API instead, use `python -m uvicorn main:app --reload` and open `http://127.0.0.1:8000/docs`. Stop the combined run or API with `Ctrl+C` in the terminal.
+
+**Hosting note:** `python run_camera.py` uses the computer's local webcam. Deploying this command to a cloud host would access the cloud machine's camera, not the visitor's. A live website that uses each visitor's webcam will need a browser camera interface and a secure frame-streaming/API design; that is a separate hosting step.
 
 ### Prerequisites
 To run the programs in this repo, do the following:
@@ -149,7 +155,7 @@ If you have any other ideas or do any step of to do consider making a pull reque
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](../../tree/master/LICENSE.md) file for details. However, the facial landmarks detection model is trained on non-commercial use datasets so I am not sure if that is allowed to be used for commercial purposes or not.
+The V2 source is licensed under the MIT License in `LICENSE.md`; the imported V1 source retains its separate MIT license in `LICENSE-V1`. The facial-landmark model has its own dataset/model usage terms; check those terms before commercial use.
 
 ## Like what I am doing
 <a href="https://www.buymeacoffee.com/rao.siyaaa

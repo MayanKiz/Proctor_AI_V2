@@ -1,135 +1,76 @@
 # Author: Mynk
+"""Optional microphone/speech check. Audio is sent to Google's speech API only when run."""
+
+from pathlib import Path
+import re
+
+import nltk
 import speech_recognition as sr
-import pyaudio
-import wave
-import time
-import threading
-import os
-
-def read_audio(stream, filename):
-    chunk = 1024  # Record in chunks of 1024 samples
-    sample_format = pyaudio.paInt16  # 16 bits per sample
-    channels = 2
-    fs = 44100  # Record at 44100 samples per second
-    seconds = 10 # Number of seconds to record at once
-    filename = filename
-    frames = []  # Initialize array to store frames
-    
-    for i in range(0, int(fs / chunk * seconds)):
-        data = stream.read(chunk)
-        frames.append(data)
-    
-    # Save the recorded data as a WAV file
-    wf = wave.open(filename, 'wb')
-    wf.setnchannels(channels)
-    wf.setsampwidth(p.get_sample_size(sample_format))
-    wf.setframerate(fs)
-    wf.writeframes(b''.join(frames))
-    wf.close()
-    # Stop and close the stream
-    stream.stop_stream()
-    stream.close()
-
-def convert(i):
-    if i >= 0:
-        sound = 'record' + str(i) +'.wav'
-        r = sr.Recognizer()
-        
-        with sr.AudioFile(sound) as source:
-            r.adjust_for_ambient_noise(source)
-            print("Converting Audio To Text and saving to file..... ") 
-            audio = r.listen(source)
-        try:
-            value = r.recognize_google(audio) ##### API call to google for speech recognition
-            os.remove(sound)
-            if str is bytes: 
-                result = u"{}".format(value).encode("utf-8")
-            else: 
-                result = "{}".format(value)
- 
-            with open("test.txt","a") as f:
-                f.write(result)
-                f.write(" ")
-                f.close()
-                
-        except sr.UnknownValueError:
-            print("")
-        except sr.RequestError as e:
-            print("{0}".format(e))
-        except KeyboardInterrupt:
-            pass
-
-p = pyaudio.PyAudio()  # Create an interface to PortAudio
-chunk = 1024  # Record in chunks of 1024 samples
-sample_format = pyaudio.paInt16  # 16 bits per sample
-channels = 2
-fs = 44100
-
-def save_audios(i):
-    stream = p.open(format=sample_format,channels=channels,rate=fs,
-                frames_per_buffer=chunk,input=True)
-    filename = 'record'+str(i)+'.wav'
-    read_audio(stream, filename)
-
-for i in range(30//10): # Number of total seconds to record/ Number of seconds per recording
-    t1 = threading.Thread(target=save_audios, args=[i]) 
-    x = i-1
-    t2 = threading.Thread(target=convert, args=[x]) # send one earlier than being recorded
-    t1.start() 
-    t2.start() 
-    t1.join() 
-    t2.join() 
-    if i==2:
-        flag = True
-if flag:
-    convert(i)
-    p.terminate()
 
 
-from nltk.corpus import stopwords 
-from nltk.tokenize import word_tokenize 
+ROOT = Path(__file__).resolve().parent
+PAPER_PATH = ROOT / "paper.txt"
+TRANSCRIPT_PATH = ROOT / "test.txt"
 
-file = open("test.txt") ## Student speech file
-data = file.read()
-file.close()
-stop_words = set(stopwords.words('english'))   
-word_tokens = word_tokenize(data) ######### tokenizing sentence
-filtered_sentence = [w for w in word_tokens if not w in stop_words]  
-filtered_sentence = [] 
-  
-for w in word_tokens:   ####### Removing stop words
-    if w not in stop_words: 
-        filtered_sentence.append(w) 
 
-####### creating a final file
-f=open('final.txt','w')
-for ele in filtered_sentence:
-    f.write(ele+' ')
-f.close()
-    
-##### checking whether proctor needs to be alerted or not
-file = open("paper.txt") ## Question file
-data = file.read()
-file.close()
-stop_words = set(stopwords.words('english'))   
-word_tokens = word_tokenize(data) ######### tokenizing sentence
-filtered_questions = [w for w in word_tokens if not w in stop_words]  
-filtered_questions = [] 
-  
-for w in word_tokens:   ####### Removing stop words
-    if w not in stop_words: 
-        filtered_questions.append(w) 
-        
-def common_member(a, b):     
-    a_set = set(a) 
-    b_set = set(b) 
-      
-    # check length  
-    if len(a_set.intersection(b_set)) > 0: 
-        return(a_set.intersection(b_set))   
-    else: 
-        return([]) 
+def _normalised_words(text):
+    from nltk.corpus import stopwords
+    from nltk.tokenize import wordpunct_tokenize
 
-comm = common_member(filtered_questions, filtered_sentence)
-print('Number of common elements:', len(comm))
-print(comm)
+    ignored = set(stopwords.words("english"))
+    return [word.lower() for word in wordpunct_tokenize(text) if re.search(r"[a-z0-9]", word, re.I) and word.lower() not in ignored]
+
+
+def run_audio_check(record_seconds=30):
+    """Record once, transcribe with Google Speech Recognition, and compare with paper.txt."""
+    if not PAPER_PATH.is_file():
+        print("Audio check skipped: create paper.txt in the project folder with the exam question text first.")
+        return 2
+
+    try:
+        if not nltk.data.find("corpora/stopwords"):
+            raise LookupError
+    except LookupError:
+        print("Downloading the NLTK English stopword list for the first run...")
+        if not nltk.download("stopwords", quiet=False):
+            print("Could not download NLTK stopwords; audio check cannot continue.")
+            return 2
+
+    recognizer = sr.Recognizer()
+    try:
+        with sr.Microphone() as source:
+            print("Adjusting microphone for room noise; please stay quiet briefly...")
+            recognizer.adjust_for_ambient_noise(source, duration=1)
+            print(f"Recording for up to {record_seconds} seconds. Speak normally.")
+            audio = recognizer.listen(source, timeout=10, phrase_time_limit=record_seconds)
+    except sr.WaitTimeoutError:
+        print("No speech detected before the recording timed out.")
+        return 2
+    except (OSError, AttributeError) as exc:
+        print(f"Could not open the microphone: {exc}")
+        return 2
+
+    try:
+        # This call transmits the recording to Google's Speech Recognition service.
+        transcript = recognizer.recognize_google(audio)
+    except sr.UnknownValueError:
+        print("Speech was not clear enough to transcribe.")
+        return 2
+    except sr.RequestError as exc:
+        print(f"Google Speech Recognition request failed: {exc}")
+        return 2
+
+    TRANSCRIPT_PATH.write_text(transcript + "\n", encoding="utf-8")
+    paper = PAPER_PATH.read_text(encoding="utf-8", errors="replace")
+    spoken_words = _normalised_words(transcript)
+    paper_words = set(_normalised_words(paper))
+    matches = sorted(set(spoken_words) & paper_words)
+
+    print(f"Transcript saved locally to {TRANSCRIPT_PATH.name}.")
+    print(f"Question-paper word matches: {len(matches)}")
+    print("Matching terms:", ", ".join(matches) if matches else "none")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_audio_check())

@@ -7,6 +7,7 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import os
+import requests
 
 from tensorflow.keras import Model
 from tensorflow.keras.layers import (
@@ -21,7 +22,6 @@ from tensorflow.keras.layers import (
     BatchNormalization
 )
 from tensorflow.keras.regularizers import l2
-import wget
 
 def load_darknet_weights(model, weights_file):
     '''
@@ -319,8 +319,26 @@ def YoloV3(size=None, channels=3, anchors=yolo_anchors,
 def weights_download(out='models/yolov3.weights'):
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     print("Downloading YOLOv3 weights (about 236 MB) for person/phone detection...")
-    wget.download('https://pjreddie.com/media/files/yolov3.weights', out=out)
-    print()
+    temporary_path = out + ".part"
+    try:
+        with requests.get(
+            'https://pjreddie.com/media/files/yolov3.weights',
+            stream=True,
+            timeout=(15, 120),
+        ) as response:
+            response.raise_for_status()
+            with open(temporary_path, "wb") as weights_file:
+                for chunk in response.iter_content(chunk_size=1024 * 1024):
+                    if chunk:
+                        weights_file.write(chunk)
+        if os.path.getsize(temporary_path) < 100_000_000:
+            raise RuntimeError("The downloaded YOLO weights file is unexpectedly small.")
+        os.replace(temporary_path, out)
+        print("YOLOv3 weights downloaded.")
+    except Exception:
+        if os.path.exists(temporary_path):
+            os.remove(temporary_path)
+        raise
 
 
 yolo = None

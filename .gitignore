@@ -1,0 +1,28 @@
+# Local secrets
+.env
+
+# Python environments and bytecode
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Downloaded runtime model weights (large; fetched on first use)
+models/yolov3.weights
+models/face_landmarker.task
+
+# Local runtime output
+snapshots/
+paper.txt
+record*.wav
+test.txt
+final.txt
+proctoring_ai_102.zip
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
