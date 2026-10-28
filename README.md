@@ -6,18 +6,36 @@ Project to create an automated proctoring system where the user can be monitored
 
 ## Run locally
 
-This repository exposes a FastAPI endpoint. From the project directory, use Python 3.10 or 3.11 (the computer-vision dependencies may not support every Python version):
+Use **64-bit Python 3.10** for the pinned computer-vision dependencies. The commands below start the FastAPI server; they do not automatically run the separate audio-processing script.
 
-```bash
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-# macOS/Linux: source .venv/bin/activate
+### Windows (PowerShell)
+
+```powershell
+git clone https://github.com/MayanKiz/Proctor_AI_V2.git
+cd Proctor_AI_V2
+py -3.10 -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 python -m uvicorn main:app --reload
 ```
 
-Open `http://127.0.0.1:8000/docs` to use the API. The analysis endpoint is `POST /analyze_video` and accepts a `video_url` query parameter. Live webcam, audio, and model-dependent features require their corresponding hardware, model files, and optional system libraries.
+If the repository is already cloned, start at `cd Proctor_AI_V2` (or open PowerShell in that folder) and continue from creating the virtual environment. If `py -3.10` is not recognized, install 64-bit Python 3.10 first.
+
+### macOS / Linux
+
+```bash
+git clone https://github.com/MayanKiz/Proctor_AI_V2.git
+cd Proctor_AI_V2
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload
+```
+
+Once the server starts, open `http://127.0.0.1:8000/docs` to use the API. The analysis endpoint is `POST /analyze_video` and accepts a `video_url` query parameter. Live webcam, audio, and model-dependent features require their corresponding hardware, model files, and optional system libraries. Press `Ctrl+C` in the terminal to stop the server.
 
 ### Prerequisites
 To run the programs in this repo, do the following:
