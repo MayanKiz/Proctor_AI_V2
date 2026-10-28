@@ -136,9 +136,14 @@ model_points = np.array([
                             (150.0, -150.0, -125.0)      # Right mouth corner
                         ])
 
-def detect_head_pose(video_path):
+def detect_head_pose(video_path=0):
     cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        raise RuntimeError(f"Could not open video source: {video_path!r}")
     ret, img = cap.read()
+    if not ret:
+        cap.release()
+        raise RuntimeError("The video source opened but returned no frames.")
     size = img.shape
 
     # Camera internals

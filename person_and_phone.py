@@ -6,6 +6,7 @@
 import tensorflow as tf
 import numpy as np
 import cv2
+import os
 
 from tensorflow.keras import Model
 from tensorflow.keras.layers import (
@@ -316,27 +317,45 @@ def YoloV3(size=None, channels=3, anchors=yolo_anchors,
     return Model(inputs, outputs, name='yolov3')
 
 def weights_download(out='models/yolov3.weights'):
-    _ = wget.download('https://pjreddie.com/media/files/yolov3.weights', out='models/yolov3.weights')
-    
-# weights_download() # to download weights
-yolo = YoloV3()
-load_darknet_weights(yolo, 'models/yolov3.weights') 
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
+    print("Downloading YOLOv3 weights (about 236 MB) for person/phone detection...")
+    wget.download('https://pjreddie.com/media/files/yolov3.weights', out=out)
+    print()
+
+
+yolo = None
+
+
+def get_yolo_model():
+    """Build the detector and load/download its weights only when needed."""
+    global yolo
+    if yolo is None:
+        weights_path = 'models/yolov3.weights'
+        if not os.path.isfile(weights_path):
+            weights_download(weights_path)
+        yolo = YoloV3()
+        load_darknet_weights(yolo, weights_path)
+    return yolo
 
 
 def detect_phone_and_person(video_path):
     cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        raise RuntimeError(f"Could not open video source: {video_path!r}")
+    detector = get_yolo_model()
+    with open("models/classes.TXT", encoding="utf-8") as class_file:
+        class_names = [line.strip() for line in class_file]
 
-    while(True):
+    while True:
         ret, image = cap.read()
-        if ret == False:
+        if not ret:
             break
         img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         img = cv2.resize(img, (320, 320))
         img = img.astype(np.float32)
         img = np.expand_dims(img, 0)
         img = img / 255
-        class_names = [c.strip() for c in open("models/classes.TXT").readlines()]
-        boxes, scores, classes, nums = yolo(img)
+        boxes, scores, classes, nums = detector(img)
         count=0
         for i in range(nums[0]):
             if int(classes[0][i] == 0):
@@ -357,4 +376,3 @@ def detect_phone_and_person(video_path):
 
     cap.release()
     cv2.destroyAllWindows()
-

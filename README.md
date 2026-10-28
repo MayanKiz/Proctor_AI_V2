@@ -18,7 +18,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-python -m uvicorn main:app --reload
+python run_camera.py
 ```
 
 If the repository is already cloned, start at `cd Proctor_AI_V2` (or open PowerShell in that folder) and continue from creating the virtual environment. If `py -3.11` is not recognized, install 64-bit Python 3.11 first. If `Activate.ps1` is not found, the virtual environment was not created; run `py -3.11 -m venv .venv` first, then activate it.
@@ -32,10 +32,12 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-python -m uvicorn main:app --reload
+python run_camera.py
 ```
 
-Once the server starts, open `http://127.0.0.1:8000/docs` to use the API. The analysis endpoint is `POST /analyze_video` and accepts a `video_url` query parameter. Live webcam, audio, and model-dependent features require their corresponding hardware, model files, and optional system libraries. Press `Ctrl+C` in the terminal to stop the server.
+The five visual checks run one after another in OpenCV windows. Press `q` in a feature window to move to the next check. For mouth opening, press `r` while facing the camera to calibrate, then press `q` after calibration. The first person/phone check downloads the YOLOv3 weights (about 236 MB), so an internet connection and extra disk space are needed. The webcam and audio checks do not run simultaneously; audio is a separate script and requires a microphone plus a `paper.txt` question-paper file.
+
+To run the FastAPI API instead, use `python -m uvicorn main:app --reload` and open `http://127.0.0.1:8000/docs`. Stop either mode with `Ctrl+C` in the terminal.
 
 ### Prerequisites
 To run the programs in this repo, do the following:
