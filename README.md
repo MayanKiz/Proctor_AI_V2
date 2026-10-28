@@ -6,7 +6,7 @@ Project to create an automated proctoring system where the user can be monitored
 
 ## Run locally
 
-Use **64-bit Python 3.11** for the pinned computer-vision dependencies. The commands below start the FastAPI server; they do not automatically run the separate audio-processing script.
+Use **64-bit Python 3.11** for the pinned computer-vision dependencies. Scikit-learn 1.2.2 is pinned to match the bundled older face-spoof model. The commands below start the local webcam checks.
 
 ### Windows (PowerShell)
 
