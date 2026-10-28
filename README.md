@@ -6,14 +6,14 @@ Project to create an automated proctoring system where the user can be monitored
 
 ## Run locally
 
-Use **64-bit Python 3.10** for the pinned computer-vision dependencies. The commands below start the FastAPI server; they do not automatically run the separate audio-processing script.
+Use **64-bit Python 3.11** for the pinned computer-vision dependencies. The commands below start the FastAPI server; they do not automatically run the separate audio-processing script.
 
 ### Windows (PowerShell)
 
 ```powershell
 git clone https://github.com/MayanKiz/Proctor_AI_V2.git
 cd Proctor_AI_V2
-py -3.10 -m venv .venv
+py -3.11 -m venv .venv
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -21,7 +21,7 @@ python -m pip install -r requirements.txt
 python -m uvicorn main:app --reload
 ```
 
-If the repository is already cloned, start at `cd Proctor_AI_V2` (or open PowerShell in that folder) and continue from creating the virtual environment. If `py -3.10` is not recognized, install 64-bit Python 3.10 first.
+If the repository is already cloned, start at `cd Proctor_AI_V2` (or open PowerShell in that folder) and continue from creating the virtual environment. If `py -3.11` is not recognized, install 64-bit Python 3.11 first. If `Activate.ps1` is not found, the virtual environment was not created; run `py -3.11 -m venv .venv` first, then activate it.
 
 ### macOS / Linux
 
@@ -152,4 +152,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](../../tree
 ## Like what I am doing
 <a href="https://www.buymeacoffee.com/rao.siyaaa
   " target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
-
