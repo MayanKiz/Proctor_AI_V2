@@ -2,12 +2,29 @@
 import cv2
 import joblib
 import numpy as np
+import sys
 
 from face_detector import find_faces, get_face_detector
 
 
 face_model = get_face_detector()
-clf = joblib.load("models/face_spoofing.pkl")
+clf = None
+
+
+def _load_legacy_classifier():
+    """Load the old sklearn pickle using current sklearn module locations."""
+    import sklearn.ensemble._forest as current_forest
+    import sklearn.tree._classes as current_tree
+    import joblib.numpy_pickle as current_numpy_pickle
+
+    aliases = {
+        "sklearn.ensemble.forest": current_forest,
+        "sklearn.tree.tree": current_tree,
+        "sklearn.externals.joblib.numpy_pickle": current_numpy_pickle,
+    }
+    for old_name, current_module in aliases.items():
+        sys.modules.setdefault(old_name, current_module)
+    return joblib.load("models/face_spoofing.pkl")
 
 
 def calc_hist(img):
@@ -24,6 +41,9 @@ def calc_hist(img):
 
 def detect_spoofing(video_source=0):
     """Run the existing face-spoofing classifier on a camera or video source."""
+    global clf
+    if clf is None:
+        clf = _load_legacy_classifier()
     cap = cv2.VideoCapture(video_source)
     if not cap.isOpened():
         raise RuntimeError(f"Could not open video source: {video_source!r}")
