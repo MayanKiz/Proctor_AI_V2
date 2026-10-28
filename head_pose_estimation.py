@@ -1,9 +1,6 @@
-# Customized by Mynk. Original authorship and license notices are retained.
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jul 31 03:00:36 2020
-
-@author: hp
+@author: Mynk
 """
 
 import cv2

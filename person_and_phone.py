@@ -1,9 +1,6 @@
-# Customized by Mynk. Original authorship and license notices are retained.
 # -*- coding: utf-8 -*-
 """
-Created on Fri May  1 22:45:22 2020
-
-@author: hp
+@author: Mynk
 """
 
 import tensorflow as tf

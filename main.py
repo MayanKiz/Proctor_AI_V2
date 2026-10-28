@@ -1,4 +1,4 @@
-# Customized by Mynk. Original authorship and license notices are retained.
+# Author: Mynk
 from fastapi import FastAPI, APIRouter
 
 
@@ -8,7 +8,20 @@ from mouth_opening_detector import mouth_opening_detector
 from person_and_phone import detect_phone_and_person
 
 
-app = FastAPI()
+app = FastAPI(title="Mayank Proctoring AI")
+
+MAYANK_BANNER = r"""
+███╗   ███╗ █████╗ ██╗   ██╗ █████╗ ███╗   ██╗██╗  ██╗
+████╗ ████║██╔══██╗╚██╗ ██╔╝██╔══██╗████╗  ██║██║ ██╔╝
+██╔████╔██║███████║ ╚████╔╝ ███████║██╔██╗ ██║█████╔╝
+██║╚██╔╝██║██╔══██║  ╚██╔╝  ██╔══██║██║╚██╗██║██╔═██╗
+██║ ╚═╝ ██║██║  ██║   ██║   ██║  ██║██║ ╚████║██║  ██╗
+╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝
+"""
+
+@app.on_event("startup")
+def show_startup_banner():
+    print(MAYANK_BANNER, flush=True)
 
 
 @app.post("/analyze_video")

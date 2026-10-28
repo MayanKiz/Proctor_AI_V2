@@ -1,4 +1,4 @@
-# Customized by Mynk. Original authorship and license notices are retained.
+# Author: Mynk
 import speech_recognition as sr
 import pyaudio
 import wave

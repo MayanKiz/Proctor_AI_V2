@@ -1,8 +1,23 @@
-> **Mynk customization:** This is a customized working copy maintained by **Mynk**. The original project and third-party components retain their existing author credits, copyright notices, and license terms.
 
 # Proctoring-AI
 
 Project to create an automated proctoring system where the user can be monitored automatically through the webcam and microphone. The project is divided into two parts: vision and audio based functionalities. An explanation of some functionalities of the project can be found on my [medium article](https://towardsdatascience.com/automating-online-proctoring-using-ai-e429086743c8?source=friends_link&sk=fbc385d1a8c55628a916dc714747f276).
+
+
+## Run locally
+
+This repository exposes a FastAPI endpoint. From the project directory, use Python 3.10 or 3.11 (the computer-vision dependencies may not support every Python version):
+
+```bash
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload
+```
+
+Open `http://127.0.0.1:8000/docs` to use the API. The analysis endpoint is `POST /analyze_video` and accepts a `video_url` query parameter. Live webcam, audio, and model-dependent features require their corresponding hardware, model files, and optional system libraries.
 
 ### Prerequisites
 To run the programs in this repo, do the following:
@@ -63,27 +78,17 @@ If you want to use dlib models then checkout the [old-master branch](https://git
 ### Eye tracking
 `eye_tracker.py` is to track eyes. A detailed explanation is provided in this [article](https://towardsdatascience.com/real-time-eye-tracking-using-opencv-and-dlib-b504ca724ac6?source=friends_link&sk=d9db46e2f41258c6c23d18792775d2a5). However, it was written using dlib.
 
-![eye tracking](../../blob/master/gifs/1.gif)
-
 ### Mouth Opening Detection
 `mouth_opening_detector.py` is used to check if the candidate opens his/her mouth during the exam after recording it initially. It's explanation can be found in the main article, however, it is using dlib which can be easily changed to the new models.
-
-![Mouth opening detection](../../blob/master/gifs/2.gif)
 
 ### Person counting and mobile phone detection
 `person_and_phone.py` is for counting persons and detecting mobile phones. YOLOv3 is used in Tensorflow 2 and it is explained in this [article](https://medium.com/analytics-vidhya/count-people-in-webcam-using-yolov3-tensorflow-f407679967d5?source=friends_link&sk=95ae7a010eeef429a407a7a2de2ff8ec) for more details.
 
-![person counting and phone detection](../../blob/master/gifs/3.gif)
-
 ### Head pose estimation
 `head_pose_estimation.py` is used for finding where the head is facing. An explanation is provided in this [article](https://towardsdatascience.com/real-time-head-pose-estimation-in-python-e52db1bc606a?source=friends_link&sk=0bae01db2759930197bfd33777c9eaf4)
 
-![head pose estimation](../../blob/master/gifs/4.gif)
-
 ### Face spoofing
 `face_spoofing.py` is used for finding whether the face is real or a photograph or image. An explanation is provided in this [article](https://medium.com/visionwizard/face-spoofing-detection-in-python-e46761fe5947). The model and working is taken from this Github [repo](https://github.com/ee09115/spoofing_detection).
-
-![face spoofing](../../blob/master/gifs/5.gif)
 
 ### FPS obtained
 
