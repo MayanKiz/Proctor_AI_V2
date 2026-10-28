@@ -62,7 +62,7 @@ while True:
 
         point = (x, y-5)
 
-        # print (measures, np.mean(measures))
+        # print (measures,np.mean(measures))
         if 0 not in measures:
             text = "True"
             if np.mean(measures) >= 0.7:
