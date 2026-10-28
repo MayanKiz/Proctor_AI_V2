@@ -132,6 +132,6 @@ If you have any other ideas or do any step of to do consider making a pull reque
 This project is licensed under the MIT License - see the [LICENSE.md](../../tree/master/LICENSE.md) file for details. However, the facial landmarks detection model is trained on non-commercial use datasets so I am not sure if that is allowed to be used for commercial purposes or not.
 
 ## Like what I am doing
-<a href="https://www.buymeacoffee.com/rao.siyaa
+<a href="https://www.buymeacoffee.com/rao.siyaaa
   " target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
